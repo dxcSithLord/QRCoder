@@ -321,18 +321,16 @@ namespace QRCoder
     {
         public static byte[] GetQRCode(string plainText, int pixelsPerModule, byte[] darkColorRgba, byte[] lightColorRgba, ECCLevel eccLevel, bool forceUtf8 = false, bool utf8BOM = false, EciMode eciMode = EciMode.Default, int requestedVersion = -1)
         {
-            using (var qrGenerator = new QRCodeGenerator())
-            using (var qrCodeData = qrGenerator.CreateQrCode(plainText, eccLevel, forceUtf8, utf8BOM, eciMode, requestedVersion))
+            using (var qrCodeData = CreateQrCode(plainText, eccLevel, forceUtf8, utf8BOM, eciMode, requestedVersion))
             using (var qrCode = new PngByteQRCode(qrCodeData))
                 return qrCode.GetGraphic(pixelsPerModule, darkColorRgba, lightColorRgba);
         }
     
 
 
-        public static byte[] GetQRCode(string txt, QRCodeGenerator.ECCLevel eccLevel, int size)
+        public static byte[] GetQRCode(string txt, ECCLevel eccLevel, int size)
         {
-            using (var qrGen = new QRCodeGenerator())
-            using (var qrCode = qrGen.CreateQrCode(txt, eccLevel))
+            using (var qrCode = CreateQrCode(txt, eccLevel))
             using (var qrPng = new PngByteQRCode(qrCode))
                 return qrPng.GetGraphic(size);
         }

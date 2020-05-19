@@ -166,18 +166,34 @@ namespace QRCoder
             return 21 + (version - 1) * 4;
         }
 
-        public void Dispose()
-        {
-            ModuleMatrix = null;
-            Version = 0;
-
-        }
-
         public enum Compression
         {
             Uncompressed,
             Deflate,
             GZip
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    ModuleMatrix = null;
+                    Version = 0;
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+        #endregion
     }
 }

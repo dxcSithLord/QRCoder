@@ -16,8 +16,7 @@ namespace QRCoderTests
         [Category("QRRenderer/QRCode")]
         public void Can_create_standard_qrcode_graphic()
         {
-            var gen = new QRCodeGenerator();
-            var data = gen.CreateQrCode("This is a quick test! 123#?", QRCodeGenerator.ECCLevel.H);
+            var data = QRCodeGenerator.CreateQrCode("This is a quick test! 123#?", QRCodeGenerator.ECCLevel.H);
             var bmp = new PngByteQRCode(data).GetGraphic(10);
             var md5 = new MD5CryptoServiceProvider();
             var hash = md5.ComputeHash(bmp);
