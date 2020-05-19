@@ -1,8 +1,10 @@
-# QRCoder
+# QRCoder Slim
 [![qrcoder MyGet Build Status](https://www.myget.org/BuildSource/Badge/qrcoder?identifier=10cbdaa5-2dd9-460b-b424-be44e75258ec)](https://www.myget.org/feed/qrcoder/package/nuget/QRCoder)   [![NuGet Badge](https://buildstats.info/nuget/QRCoder)](https://www.nuget.org/packages/QRCoder/)
 ## Info 
 
-QRCoder is a simple library, written in C#.NET, which enables you to create QR codes. It hasn't any dependencies to other libraries and is available as .NET Framework and .NET Core PCL version on NuGet.
+QRCoder Slim is a fork of the QRCoder library, which enables you to create QR codes. It hasn't any dependencies to other libraries and is available as .NET Framework and .NET Core PCL version on NuGet.
+
+This slim version omits all dependencies, running with purely the base class library. No requirement to use System.Drawing which eliminates the libgdiplus requirement on Linux.
 
 Feel free to grab-up/fork the project and make it better!
 
