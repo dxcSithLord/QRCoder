@@ -25,8 +25,6 @@
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net35' or '$(TargetFramework)' == 'net40' ">
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
   
@@ -36,6 +34,7 @@
 
   <PropertyGroup>
     <FrameworkPathOverride Condition="'$(TargetFramework)' == 'net35'">$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v3.5\Profile\Client</FrameworkPathOverride>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   
 </Project>
