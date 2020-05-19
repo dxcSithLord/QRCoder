@@ -4,7 +4,6 @@ using System.Linq;
 
 namespace QRCoder
 {
-    using QRCoder.Framework4._0Methods;
     using System;
     using System.IO;
     using System.IO.Compression;
@@ -15,11 +14,11 @@ namespace QRCoder
 
         public QRCodeData(int version)
         {
-            this.Version = version;
+            Version = version;
             var size = ModulesPerSideFromVersion(version);
-            this.ModuleMatrix = new List<BitArray>();
+            ModuleMatrix = new List<BitArray>();
             for (var i = 0; i < size; i++)
-                this.ModuleMatrix.Add(new BitArray(size));
+                ModuleMatrix.Add(new BitArray(size));
         }
 #if NETFRAMEWORK || NETSTANDARD2_0
         public QRCodeData(string pathToRawData, Compression compressMode) : this(File.ReadAllBytes(pathToRawData), compressMode)
@@ -39,7 +38,7 @@ namespace QRCoder
                     {
                         using (var dstream = new DeflateStream(input, CompressionMode.Decompress))
                         {
-                            Stream4Methods.CopyTo(dstream, output);
+                            dstream.CopyTo(output);
                         }
                         bytes = new List<byte>(output.ToArray());
                     }
@@ -53,7 +52,7 @@ namespace QRCoder
                     {
                         using (var dstream = new GZipStream(input, CompressionMode.Decompress))
                         {
-                            Stream4Methods.CopyTo(dstream, output);
+                            dstream.CopyTo(output);
                         }
                         bytes = new List<byte>(output.ToArray());
                     }
@@ -66,13 +65,12 @@ namespace QRCoder
             //Set QR code version
             var sideLen = (int)bytes[4];
             bytes.RemoveRange(0, 5);
-            this.Version = (sideLen - 21 - 8) / 4 + 1;
+            Version = (sideLen - 21 - 8) / 4 + 1;
 
             //Unpack
             var modules = new Queue<bool>(8 * bytes.Count);
             foreach (var b in bytes)
             {
-                var bArr = new BitArray(new byte[] { b });
                 for (int i = 7; i >= 0; i--)
                 {
                     modules.Enqueue((b & (1 << i)) != 0);
@@ -80,13 +78,13 @@ namespace QRCoder
             }
 
             //Build module matrix
-            this.ModuleMatrix = new List<BitArray>(sideLen);
+            ModuleMatrix = new List<BitArray>(sideLen);
             for (int y = 0; y < sideLen; y++)
             {
-                this.ModuleMatrix.Add(new BitArray(sideLen));
+                ModuleMatrix.Add(new BitArray(sideLen));
                 for (int x = 0; x < sideLen; x++)
                 {
-                    this.ModuleMatrix[y][x] = modules.Dequeue();
+                    ModuleMatrix[y][x] = modules.Dequeue();
                 }
             }
 
@@ -170,8 +168,8 @@ namespace QRCoder
 
         public void Dispose()
         {
-            this.ModuleMatrix = null;
-            this.Version = 0;
+            ModuleMatrix = null;
+            Version = 0;
 
         }
 

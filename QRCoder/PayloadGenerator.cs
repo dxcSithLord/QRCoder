@@ -32,17 +32,17 @@ namespace QRCoder
             public WiFi(string ssid, string password, Authentication authenticationMode, bool isHiddenSSID = false)
             {
                 this.ssid = EscapeInput(ssid);
-                this.ssid = isHexStyle(this.ssid) ? "\"" + this.ssid + "\"" : this.ssid;
+                this.ssid = IsHexStyle(this.ssid) ? "\"" + this.ssid + "\"" : this.ssid;
                 this.password = EscapeInput(password);
-                this.password = isHexStyle(this.password) ? "\"" + this.password + "\"" : this.password;
+                this.password = IsHexStyle(this.password) ? "\"" + this.password + "\"" : this.password;
                 this.authenticationMode = authenticationMode.ToString();
-                this.isHiddenSsid = isHiddenSSID;
+                isHiddenSsid = isHiddenSSID;
             }
 
             public override string ToString()
             {
                 return
-                    $"WIFI:T:{this.authenticationMode};S:{this.ssid};P:{this.password};{(this.isHiddenSsid ? "H:true" : string.Empty)};";
+                    $"WIFI:T:{authenticationMode};S:{ssid};P:{password};{(isHiddenSsid ? "H:true" : string.Empty)};";
             }
 
             public enum Authentication
@@ -66,7 +66,7 @@ namespace QRCoder
             public Mail(string mailReceiver, MailEncoding encoding = MailEncoding.MAILTO)
             {
                 this.mailReceiver = mailReceiver;
-                this.subject = this.message = string.Empty;
+                subject = message = string.Empty;
                 this.encoding = encoding;
             }
 
@@ -80,7 +80,7 @@ namespace QRCoder
             {
                 this.mailReceiver = mailReceiver;
                 this.subject = subject;
-                this.message = string.Empty;
+                message = string.Empty;
                 this.encoding = encoding;
             }
 
@@ -101,19 +101,19 @@ namespace QRCoder
 
             public override string ToString()
             {
-                switch (this.encoding)
+                switch (encoding)
                 {
                     case MailEncoding.MAILTO:
                         return
-                            $"mailto:{this.mailReceiver}?subject={System.Uri.EscapeDataString(this.subject)}&body={System.Uri.EscapeDataString(this.message)}";
+                            $"mailto:{mailReceiver}?subject={System.Uri.EscapeDataString(subject)}&body={System.Uri.EscapeDataString(message)}";
                     case MailEncoding.MATMSG:
                         return
-                            $"MATMSG:TO:{this.mailReceiver};SUB:{EscapeInput(this.subject)};BODY:{EscapeInput(this.message)};;";
+                            $"MATMSG:TO:{mailReceiver};SUB:{EscapeInput(subject)};BODY:{EscapeInput(message)};;";
                     case MailEncoding.SMTP:
                         return
-                            $"SMTP:{this.mailReceiver}:{EscapeInput(this.subject, true)}:{EscapeInput(this.message, true)}";
+                            $"SMTP:{mailReceiver}:{EscapeInput(subject, true)}:{EscapeInput(message, true)}";
                     default:
-                        return this.mailReceiver;
+                        return mailReceiver;
                 }
             }
 
@@ -138,7 +138,7 @@ namespace QRCoder
             public SMS(string number, SMSEncoding encoding = SMSEncoding.SMS)
             {
                 this.number = number;
-                this.subject = string.Empty;
+                subject = string.Empty;
                 this.encoding = encoding;
             }
 
@@ -157,14 +157,14 @@ namespace QRCoder
 
             public override string ToString()
             {
-                switch (this.encoding)
+                switch (encoding)
                 {
                     case SMSEncoding.SMS:
-                        return $"sms:{this.number}?body={System.Uri.EscapeDataString(this.subject)}";
+                        return $"sms:{number}?body={System.Uri.EscapeDataString(subject)}";
                     case SMSEncoding.SMS_iOS:
-                        return $"sms:{this.number};body={System.Uri.EscapeDataString(this.subject)}";
+                        return $"sms:{number};body={System.Uri.EscapeDataString(subject)}";
                     case SMSEncoding.SMSTO:
-                        return $"SMSTO:{this.number}:{this.subject}";
+                        return $"SMSTO:{number}:{subject}";
                     default:
                         return "sms:";
                 }
@@ -191,7 +191,7 @@ namespace QRCoder
             public MMS(string number, MMSEncoding encoding = MMSEncoding.MMS)
             {
                 this.number = number;
-                this.subject = string.Empty;
+                subject = string.Empty;
                 this.encoding = encoding;
             }
 
@@ -210,12 +210,12 @@ namespace QRCoder
 
             public override string ToString()
             {
-                switch (this.encoding)
+                switch (encoding)
                 {
                     case MMSEncoding.MMSTO:
-                        return $"mmsto:{this.number}?subject={System.Uri.EscapeDataString(this.subject)}";
+                        return $"mmsto:{number}?subject={System.Uri.EscapeDataString(subject)}";
                     case MMSEncoding.MMS:
-                        return $"mms:{this.number}?body={System.Uri.EscapeDataString(this.subject)}";
+                        return $"mms:{number}?body={System.Uri.EscapeDataString(subject)}";
                     default:
                         return "mms:";
                 }
@@ -248,12 +248,12 @@ namespace QRCoder
 
             public override string ToString()
             {
-                switch (this.encoding)
+                switch (encoding)
                 {
                     case GeolocationEncoding.GEO:
-                        return $"geo:{this.latitude},{this.longitude}";
+                        return $"geo:{latitude},{longitude}";
                     case GeolocationEncoding.GoogleMaps:
-                        return $"http://maps.google.com/maps?q={this.latitude},{this.longitude}";
+                        return $"http://maps.google.com/maps?q={latitude},{longitude}";
                     default:
                         return "geo:";
                 }
@@ -281,7 +281,7 @@ namespace QRCoder
 
             public override string ToString()
             {
-                return $"tel:{this.number}";
+                return $"tel:{number}";
             }
         }
 
@@ -300,7 +300,7 @@ namespace QRCoder
 
             public override string ToString()
             {
-                return $"skype:{this.skypeUsername}?call";
+                return $"skype:{skypeUsername}?call";
             }
         }
 
@@ -319,7 +319,7 @@ namespace QRCoder
 
             public override string ToString()
             {
-                return (!this.url.StartsWith("http") ? "http://" + this.url : this.url);
+                return (!url.StartsWith("http") ? "http://" + url : url);
             }
         }
 
@@ -345,13 +345,13 @@ namespace QRCoder
             /// <param name="message">The message</param>
             public WhatsAppMessage(string message)
             {
-                this.number = string.Empty;
+                number = string.Empty;
                 this.message = message;
             }
 
             public override string ToString()
             {
-                return ($"whatsapp://send?phone={this.number}&text={Uri.EscapeDataString(message)}");
+                return ($"whatsapp://send?phone={number}&text={Uri.EscapeDataString(message)}");
             }
         }
 
@@ -373,7 +373,7 @@ namespace QRCoder
 
             public override string ToString()
             {
-                return $"MEBKM:TITLE:{this.title};URL:{this.url};;";
+                return $"MEBKM:TITLE:{title};URL:{url};;";
             }
         }
 
@@ -463,9 +463,9 @@ namespace QRCoder
                     if (!string.IsNullOrEmpty(note))
                         payload += $"NOTE:{note}\r\n";
                     if (birthday != null)
-                        payload += $"BDAY:{((DateTime)birthday).ToString("yyyyMMdd")}\r\n";
-                    string addressString = string.Empty;
-                    if(addressOrder == AddressOrder.Default)
+                        payload += $"BDAY:{(DateTime)birthday:yyyyMMdd}\r\n";
+                    string addressString;
+                    if (addressOrder == AddressOrder.Default)
                     {
                         addressString = $"ADR:,,{(!string.IsNullOrEmpty(street) ? street + " " : "")}{(!string.IsNullOrEmpty(houseNumber) ? houseNumber : "")},{(!string.IsNullOrEmpty(zipCode) ? zipCode : "")},{(!string.IsNullOrEmpty(city) ? city : "")},{(!string.IsNullOrEmpty(stateRegion) ? stateRegion : "")},{(!string.IsNullOrEmpty(country) ? country : "")}\r\n";
                     }
@@ -538,19 +538,13 @@ namespace QRCoder
                         payload += "TYPE=HOME,PREF:";
                     else
                         payload += "TYPE=home,pref:";
-                    string addressString = string.Empty;
-                    if(addressOrder == AddressOrder.Default)
-                    {
-                        addressString = $";;{(!string.IsNullOrEmpty(street) ? street + " " : "")}{(!string.IsNullOrEmpty(houseNumber) ? houseNumber : "")};{(!string.IsNullOrEmpty(zipCode) ? zipCode : "")};{(!string.IsNullOrEmpty(city) ? city : "")};{(!string.IsNullOrEmpty(stateRegion) ? stateRegion : "")};{(!string.IsNullOrEmpty(country) ? country : "")}\r\n";
-                    }
-                    else
-                    {
-                        addressString = $";;{(!string.IsNullOrEmpty(houseNumber) ? houseNumber + " " : "")}{(!string.IsNullOrEmpty(street) ? street : "")};{(!string.IsNullOrEmpty(city) ? city : "")};{(!string.IsNullOrEmpty(stateRegion) ? stateRegion : "")};{(!string.IsNullOrEmpty(zipCode) ? zipCode : "")};{(!string.IsNullOrEmpty(country) ? country : "")}\r\n";
-                    }
+                    string addressString = addressOrder == AddressOrder.Default
+                        ? $";;{(!string.IsNullOrEmpty(street) ? street + " " : "")}{(!string.IsNullOrEmpty(houseNumber) ? houseNumber : "")};{(!string.IsNullOrEmpty(zipCode) ? zipCode : "")};{(!string.IsNullOrEmpty(city) ? city : "")};{(!string.IsNullOrEmpty(stateRegion) ? stateRegion : "")};{(!string.IsNullOrEmpty(country) ? country : "")}\r\n"
+                        : $";;{(!string.IsNullOrEmpty(houseNumber) ? houseNumber + " " : "")}{(!string.IsNullOrEmpty(street) ? street : "")};{(!string.IsNullOrEmpty(city) ? city : "")};{(!string.IsNullOrEmpty(stateRegion) ? stateRegion : "")};{(!string.IsNullOrEmpty(zipCode) ? zipCode : "")};{(!string.IsNullOrEmpty(country) ? country : "")}\r\n";
                     payload += addressString;
                     
                     if (birthday != null)
-                        payload += $"BDAY:{((DateTime)birthday).ToString("yyyyMMdd")}\r\n";
+                        payload += $"BDAY:{(DateTime)birthday:yyyyMMdd}\r\n";
                     if (!string.IsNullOrEmpty(website))
                         payload += $"URL:{website}\r\n";
                     if (!string.IsNullOrEmpty(email))
@@ -679,7 +673,7 @@ namespace QRCoder
                 this.creditor = creditor;
                 this.ultimateCreditor = ultimateCreditor;
 
-                this.additionalInformation = additionalInformation != null ? additionalInformation : new AdditionalInformation();
+                this.additionalInformation = additionalInformation ?? new AdditionalInformation();
 
                 if (amount != null && amount.ToString().Length > 12)
                     throw new SwissQrCodeException("Amount (including decimals) must be shorter than 13 places.");
@@ -718,7 +712,7 @@ namespace QRCoder
                         throw new SwissQrCodeAdditionalInformationException("Unstructured message and bill information must be shorter than 141 chars in total/combined.");
                     this.unstructuredMessage = unstructuredMessage;
                     this.billInformation = billInformation;
-                    this.trailer = "EPD";
+                    trailer = "EPD";
                 }
 
                 public string UnstructureMessage
@@ -833,8 +827,8 @@ namespace QRCoder
 
             public class Iban
             {
-                private string iban;
-                private IbanType ibanType;
+                private readonly string iban;
+                private readonly IbanType ibanType;
 
                 /// <summary>
                 /// IBAN object with type information
@@ -890,9 +884,9 @@ namespace QRCoder
             public class Contact
             {
                 private static readonly HashSet<string> twoLetterCodes = ValidTwoLetterCodes();
-                private string br = "\r\n";
-                private string name, streetOrAddressline1, houseNumberOrAddressline2, zipCode, city, country;
-                private AddressType adrType;
+                private readonly string br = "\r\n";
+                private readonly string name, streetOrAddressline1, houseNumberOrAddressline2, zipCode, city, country;
+                private readonly AddressType adrType;
 
                 /// <summary>
                 /// Contact type. Can be used for payee, ultimate payee, etc. with address in structured mode (S).
@@ -926,7 +920,7 @@ namespace QRCoder
                     //Pattern extracted from https://qr-validation.iso-payments.ch as explained in https://github.com/codebude/QRCoder/issues/97
                     var charsetPattern = @"^([a-zA-Z0-9\.,;:'\ \+\-/\(\)?\*\[\]\{\}\\`´~ ]|[!""#%&<>÷=@_$£]|[àáâäçèéêëìíîïñòóôöùúûüýßÀÁÂÄÇÈÉÊËÌÍÎÏÒÓÔÖÙÚÛÜÑ])*$";
 
-                    this.adrType = addressType;
+                    adrType = addressType;
 
                     if (string.IsNullOrEmpty(name))
                         throw new SwissQrCodeContactException("Name must not be empty.");
@@ -936,7 +930,7 @@ namespace QRCoder
                         throw new SwissQrCodeContactException($"Name must match the following pattern as defined in pain.001: {charsetPattern}");
                     this.name = name;
 
-                    if (AddressType.StructuredAddress == this.adrType)
+                    if (AddressType.StructuredAddress == adrType)
                     {
                         if (!string.IsNullOrEmpty(streetOrAddressline1) && (streetOrAddressline1.Length > 70))
                             throw new SwissQrCodeContactException("Street must be shorter than 71 chars.");
@@ -965,7 +959,7 @@ namespace QRCoder
                         this.houseNumberOrAddressline2 = houseNumberOrAddressline2;
                     }
 
-                    if (AddressType.StructuredAddress == this.adrType) {
+                    if (AddressType.StructuredAddress == adrType) {
                         if (string.IsNullOrEmpty(zipCode))
                             throw new SwissQrCodeContactException("Zip code must not be empty.");
                         if (zipCode.Length > 16)
@@ -1127,7 +1121,7 @@ namespace QRCoder
             //Keep in mind, that the ECC level has to be set to "M" when generating a Girocode!
             //Girocode specification: http://www.europeanpaymentscouncil.eu/index.cfm/knowledge-bank/epc-documents/quick-response-code-guidelines-to-enable-data-capture-for-the-initiation-of-a-sepa-credit-transfer/epc069-12-quick-response-code-guidelines-to-enable-data-capture-for-the-initiation-of-a-sepa-credit-transfer1/
 
-            private string br = "\n";
+            private readonly string br = "\n";
             private readonly string iban, bic, name, purposeOfCreditTransfer, remittanceInformation, messageToGirocodeUser;
             private readonly decimal amount;
             private readonly GirocodeVersion version;
@@ -1507,7 +1501,7 @@ namespace QRCoder
                             if (!string.IsNullOrEmpty(mandateId))
                                 bezahlCodePayload += $"mandateid={ Uri.EscapeDataString(mandateId)}&";
                             if (dateOfSignature != null)
-                                bezahlCodePayload += $"dateofsignature={dateOfSignature.ToString("ddMMyyyy")}&";
+                                bezahlCodePayload += $"dateofsignature={dateOfSignature:ddMMyyyy}&";
                         }
                     }
                     bezahlCodePayload += $"amount={amount:0.00}&".Replace(".", ",");
@@ -1515,16 +1509,16 @@ namespace QRCoder
                     if (!string.IsNullOrEmpty(reason))
                         bezahlCodePayload += $"reason={ Uri.EscapeDataString(reason)}&";
                     bezahlCodePayload += $"currency={currency}&";
-                    bezahlCodePayload += $"executiondate={executionDate.ToString("ddMMyyyy")}&";
+                    bezahlCodePayload += $"executiondate={executionDate:ddMMyyyy}&";
 
                     if (authority == AuthorityType.periodicsinglepayment || authority == AuthorityType.periodicsinglepaymentsepa)
                     {
                         bezahlCodePayload += $"periodictimeunit={periodicTimeunit}&";
                         bezahlCodePayload += $"periodictimeunitrotation={periodicTimeunitRotation}&";
                         if (periodicFirstExecutionDate != null)
-                            bezahlCodePayload += $"periodicfirstexecutiondate={periodicFirstExecutionDate.ToString("ddMMyyyy")}&";
+                            bezahlCodePayload += $"periodicfirstexecutiondate={periodicFirstExecutionDate:ddMMyyyy}&";
                         if (periodicLastExecutionDate != null)
-                            bezahlCodePayload += $"periodiclastexecutiondate={periodicLastExecutionDate.ToString("ddMMyyyy")}&";
+                            bezahlCodePayload += $"periodiclastexecutiondate={periodicLastExecutionDate:ddMMyyyy}&";
                     }
                 }
                 else
@@ -1831,14 +1825,14 @@ namespace QRCoder
             public override string ToString()
             {
                 var vEvent = $"BEGIN:VEVENT{Environment.NewLine}";
-                vEvent += $"SUMMARY:{this.subject}{Environment.NewLine}";
-                vEvent += !string.IsNullOrEmpty(this.description) ? $"DESCRIPTION:{this.description}{Environment.NewLine}" : "";
-                vEvent += !string.IsNullOrEmpty(this.location) ? $"LOCATION:{this.location}{Environment.NewLine}" : "";
-                vEvent += $"DTSTART:{this.start}{Environment.NewLine}";
-                vEvent += $"DTEND:{this.end}{Environment.NewLine}";
+                vEvent += $"SUMMARY:{subject}{Environment.NewLine}";
+                vEvent += !string.IsNullOrEmpty(description) ? $"DESCRIPTION:{description}{Environment.NewLine}" : "";
+                vEvent += !string.IsNullOrEmpty(location) ? $"LOCATION:{location}{Environment.NewLine}" : "";
+                vEvent += $"DTSTART:{start}{Environment.NewLine}";
+                vEvent += $"DTEND:{end}{Environment.NewLine}";
                 vEvent += "END:VEVENT";
 
-                if (this.encoding == EventEncoding.iCalComplete)
+                if (encoding == EventEncoding.iCalComplete)
                     vEvent = $@"BEGIN:VCALENDAR{Environment.NewLine}VERSION:2.0{Environment.NewLine}{vEvent}{Environment.NewLine}END:VCALENDAR";
 
                 return vEvent;
@@ -1938,7 +1932,7 @@ namespace QRCoder
 
             private void ProcessCommonFields(StringBuilder sb)
             {
-                if (String40Methods.IsNullOrWhiteSpace(Secret))
+                if (string.IsNullOrWhiteSpace(Secret))
                 {
                     throw new Exception("Secret must be a filled out base32 encoded string");
                 }
@@ -1946,7 +1940,7 @@ namespace QRCoder
                 string escapedIssuer = null;
                 string escapedLabel = null;
 
-                if (!String40Methods.IsNullOrWhiteSpace(Issuer))
+                if (!string.IsNullOrWhiteSpace(Issuer))
                 {
                     if (Issuer.Contains(":"))
                     {
@@ -1955,7 +1949,7 @@ namespace QRCoder
                     escapedIssuer = Uri.EscapeUriString(Issuer);
                 }
 
-                if (!String40Methods.IsNullOrWhiteSpace(Label))
+                if (!string.IsNullOrWhiteSpace(Label))
                 {
                     if (Label.Contains(":"))
                     {
@@ -2000,7 +1994,7 @@ namespace QRCoder
             private readonly string hostname, password, tag, methodStr, parameter;
             private readonly Method method;
             private readonly int port;
-            private Dictionary<string, string> encryptionTexts = new Dictionary<string, string>() {
+            private readonly Dictionary<string, string> encryptionTexts = new Dictionary<string, string>() {
                 { "Chacha20IetfPoly1305", "chacha20-ietf-poly1305" },
                 { "Aes128Gcm", "aes-128-gcm" },
                 { "Aes192Gcm", "aes-192-gcm" },
@@ -2068,7 +2062,7 @@ namespace QRCoder
                 )
                 }, tag)
             { }
-            private Dictionary<string, string> UrlEncodeTable = new Dictionary<string, string>
+            private readonly Dictionary<string, string> UrlEncodeTable = new Dictionary<string, string>
             {
                 [" "] = "+",
                 ["\0"] = "%00",
@@ -2122,11 +2116,11 @@ namespace QRCoder
                 this.port = port;
                 this.password = password;
                 this.method = method;
-                this.methodStr = encryptionTexts[method.ToString()];
+                methodStr = encryptionTexts[method.ToString()];
                 this.tag = tag;
 
                 if (parameters != null)
-                    this.parameter =
+                    parameter =
                         string.Join("&",
                         parameters.Select(
                             kv => $"{UrlEncode(kv.Key)}={UrlEncode(kv.Value)}"
@@ -2275,19 +2269,19 @@ namespace QRCoder
             //Keep in mind, that the ECC level has to be set to "M", version to 15 and ECI to EciMode.Iso8859_2 when generating a SlovenianUpnQr!
             //SlovenianUpnQr specification: https://www.upn-qr.si/uploads/files/NavodilaZaProgramerjeUPNQR.pdf
 
-            private string _payerName = "";
-            private string _payerAddress = "";
-            private string _payerPlace = "";
-            private string _amount = "";
-            private string _code = "";
-            private string _purpose = "";
-            private string _deadLine = "";
-            private string _recipientIban = "";
-            private string _recipientName = "";
-            private string _recipientAddress = "";
-            private string _recipientPlace = "";
-            private string _recipientSiModel = "";
-            private string _recipientSiReference = "";
+            private readonly string _payerName = "";
+            private readonly string _payerAddress = "";
+            private readonly string _payerPlace = "";
+            private readonly string _amount = "";
+            private readonly string _code = "";
+            private readonly string _purpose = "";
+            private readonly string _deadLine = "";
+            private readonly string _recipientIban = "";
+            private readonly string _recipientName = "";
+            private readonly string _recipientAddress = "";
+            private readonly string _recipientPlace = "";
+            private readonly string _recipientSiModel = "";
+            private readonly string _recipientSiReference = "";
 
             public override int Version { get { return 15; } }
             public override QRCodeGenerator.ECCLevel EccLevel { get { return QRCodeGenerator.ECCLevel.M; } }
@@ -2376,9 +2370,11 @@ namespace QRCoder
                                          
             //Check IBAN checksum
             var sum = $"{ibanCleared.Substring(4)}{ibanCleared.Substring(0, 4)}".ToCharArray().Aggregate("", (current, c) => current + (char.IsLetter(c) ? (c - 55).ToString() : c.ToString()));
-            decimal sumDec;
-            if (!decimal.TryParse(sum, out sumDec))
+            if (!decimal.TryParse(sum, out decimal sumDec))
+            {
                 return false;
+            }
+
             var checksumValid = (sumDec % 97) == 1;
             
             return structurallyValid && checksumValid;
@@ -2447,9 +2443,6 @@ namespace QRCoder
             return checksum == Convert.ToInt32(digits[digits.Length - 1]) - 48;
 		}
 
-        private static bool isHexStyle(string inp)
-        {
-            return (System.Text.RegularExpressions.Regex.IsMatch(inp, @"\A\b[0-9a-fA-F]+\b\Z") || System.Text.RegularExpressions.Regex.IsMatch(inp, @"\A\b(0[xX])?[0-9a-fA-F]+\b\Z"));
-        }
+        private static bool IsHexStyle(string inp) => Regex.IsMatch(inp, @"\A\b[0-9a-fA-F]+\b\Z") || Regex.IsMatch(inp, @"\A\b(0[xX])?[0-9a-fA-F]+\b\Z");
     }
 }

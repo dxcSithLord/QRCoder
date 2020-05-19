@@ -11,24 +11,19 @@ namespace QRCoderTests
 
     public class QRCodeRendererTests
     {
-#if !NETCOREAPP1_1
+#if !NETCOREAPP
         [Fact]
         [Category("QRRenderer/QRCode")]
-        public void can_create_standard_qrcode_graphic()
+        public void Can_create_standard_qrcode_graphic()
         {
             var gen = new QRCodeGenerator();
             var data = gen.CreateQrCode("This is a quick test! 123#?", QRCodeGenerator.ECCLevel.H);
-            var bmp = new QRCode(data).GetGraphic(10);
-
-            var ms = new MemoryStream();
-            bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
-            var imgBytes = ms.ToArray();
+            var bmp = new PngByteQRCode(data).GetGraphic(10);
             var md5 = new MD5CryptoServiceProvider();
-            var hash = md5.ComputeHash(imgBytes);
+            var hash = md5.ComputeHash(bmp);
             var result = BitConverter.ToString(hash).Replace("-", "").ToLower();
-            ms.Dispose();
 
-            result.ShouldBe("41d3313c10d84034d67d476eec04163f");
+            result.ShouldBe("c362846367cf0a9999e53b50cfcecfe2");
         }
 #endif
     }

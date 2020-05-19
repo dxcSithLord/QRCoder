@@ -28,7 +28,7 @@ namespace QRCoder
 
         public byte[] GetGraphic(int pixelsPerModule, byte[] darkColorRgb, byte[] lightColorRgb)
         {
-            var sideLength = this.QrCodeData.ModuleMatrix.Count * pixelsPerModule;
+            var sideLength = QrCodeData.ModuleMatrix.Count * pixelsPerModule;
 
             var moduleDark = darkColorRgb.Reverse();
             var moduleLight = lightColorRgb.Reverse();
@@ -47,14 +47,14 @@ namespace QRCoder
             bmp.AddRange(new byte[] { 0x01, 0x00, 0x18, 0x00 });
 
             //draw qr code
-            for (var x = sideLength-1; x >= 0; x = x - pixelsPerModule)
+            for (var x = sideLength - 1; x >= 0; x -= pixelsPerModule)
             {
                 for (int pm = 0; pm < pixelsPerModule; pm++)
                 {
-                    for (var y = 0; y < sideLength; y = y + pixelsPerModule)
+                    for (var y = 0; y < sideLength; y += pixelsPerModule)
                     {
                         var module =
-                            this.QrCodeData.ModuleMatrix[(x + pixelsPerModule)/pixelsPerModule - 1][(y + pixelsPerModule)/pixelsPerModule - 1];
+                            QrCodeData.ModuleMatrix[(x + pixelsPerModule)/pixelsPerModule - 1][(y + pixelsPerModule)/pixelsPerModule - 1];
                         for (int i = 0; i < pixelsPerModule; i++)
                         {
                             bmp.AddRange(module ? moduleDark : moduleLight);

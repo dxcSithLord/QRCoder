@@ -1,6 +1,5 @@
 ﻿#if NETFRAMEWORK || NETSTANDARD2_0
 using System;
-using System.Drawing;
 using System.Text;
 using static QRCoder.QRCodeGenerator;
 using static QRCoder.SvgQRCode;
@@ -15,47 +14,22 @@ namespace QRCoder
         public SvgQRCode() { }
         public SvgQRCode(QRCodeData data) : base(data) { }
 
-        public string GetGraphic(int pixelsPerModule)
-        {
-            var viewBox = new Size(pixelsPerModule*this.QrCodeData.ModuleMatrix.Count, pixelsPerModule * this.QrCodeData.ModuleMatrix.Count);
-            return this.GetGraphic(viewBox, Color.Black, Color.White);
-        }
-        public string GetGraphic(int pixelsPerModule, Color darkColor, Color lightColor, bool drawQuietZones = true, SizingMode sizingMode = SizingMode.WidthHeightAttribute)
-        {
-            var viewBox = new Size(pixelsPerModule * this.QrCodeData.ModuleMatrix.Count, pixelsPerModule * this.QrCodeData.ModuleMatrix.Count);
-            return this.GetGraphic(viewBox, darkColor, lightColor, drawQuietZones, sizingMode);
-        }
+        public string GetGraphic(int pixelsPerModule) => GetGraphic(pixelsPerModule * QrCodeData.ModuleMatrix.Count);
 
-        public string GetGraphic(int pixelsPerModule, string darkColorHex, string lightColorHex, bool drawQuietZones = true, SizingMode sizingMode = SizingMode.WidthHeightAttribute)
-        {
-            var viewBox = new Size(pixelsPerModule * this.QrCodeData.ModuleMatrix.Count, pixelsPerModule * this.QrCodeData.ModuleMatrix.Count);
-            return this.GetGraphic(viewBox, darkColorHex, lightColorHex, drawQuietZones, sizingMode);
-        }
-
-        public string GetGraphic(Size viewBox, bool drawQuietZones = true, SizingMode sizingMode = SizingMode.WidthHeightAttribute)
-        {
-            return this.GetGraphic(viewBox, Color.Black, Color.White, drawQuietZones, sizingMode);
-        }
-
-        public string GetGraphic(Size viewBox, Color darkColor, Color lightColor, bool drawQuietZones = true, SizingMode sizingMode = SizingMode.WidthHeightAttribute)
-        {
-            return this.GetGraphic(viewBox, ColorTranslator.ToHtml(Color.FromArgb(darkColor.ToArgb())), ColorTranslator.ToHtml(Color.FromArgb(lightColor.ToArgb())), drawQuietZones, sizingMode);
-        }
-
-        public string GetGraphic(Size viewBox, string darkColorHex, string lightColorHex, bool drawQuietZones = true, SizingMode sizingMode = SizingMode.WidthHeightAttribute)
+        public string GetGraphic(int size, string darkColorHex = "#000", string lightColorHex = "#fff", bool drawQuietZones = true, SizingMode sizingMode = SizingMode.WidthHeightAttribute)
         {
             var offset = drawQuietZones ? 0 : 4;
-            var drawableModulesCount = this.QrCodeData.ModuleMatrix.Count - (drawQuietZones ? 0 : offset * 2);
-            var pixelsPerModule = (double)Math.Min(viewBox.Width, viewBox.Height) / (double)drawableModulesCount;
+            var drawableModulesCount = QrCodeData.ModuleMatrix.Count - (drawQuietZones ? 0 : offset * 2);
+            var pixelsPerModule = Math.Min(size, size) / (double)drawableModulesCount;
             var qrSize = drawableModulesCount * pixelsPerModule;
-            var svgSizeAttributes = (sizingMode == SizingMode.WidthHeightAttribute) ? $@"width=""{viewBox.Width}"" height=""{viewBox.Height}""" : $@"viewBox=""0 0 {viewBox.Width} {viewBox.Height}""";
+            var svgSizeAttributes = (sizingMode == SizingMode.WidthHeightAttribute) ? $@"width=""{size}"" height=""{size}""" : $@"viewBox=""0 0 {size} {size}""";
             var svgFile = new StringBuilder($@"<svg version=""1.1"" baseProfile=""full"" shape-rendering=""crispEdges"" {svgSizeAttributes} xmlns=""http://www.w3.org/2000/svg"">");
             svgFile.AppendLine($@"<rect x=""0"" y=""0"" width=""{CleanSvgVal(qrSize)}"" height=""{CleanSvgVal(qrSize)}"" fill=""{lightColorHex}"" />");
             for (int xi = offset; xi < offset + drawableModulesCount; xi++)
             {
                 for (int yi = offset; yi < offset + drawableModulesCount; yi++)
                 {
-                    if (this.QrCodeData.ModuleMatrix[yi][xi])
+                    if (QrCodeData.ModuleMatrix[yi][xi])
                     {
                         var x = (xi - offset) * pixelsPerModule;
                         var y = (yi - offset) * pixelsPerModule;
@@ -87,7 +61,7 @@ namespace QRCoder
             using (var qrGenerator = new QRCodeGenerator())
             using (var qrCodeData = qrGenerator.CreateQrCode(plainText, eccLevel, forceUtf8, utf8BOM, eciMode, requestedVersion))
             using (var qrCode = new SvgQRCode(qrCodeData))
-                return qrCode.GetGraphic(pixelsPerModule, darkColorHex, lightColorHex, drawQuietZones, sizingMode);
+                return qrCode.GetGraphic(pixelsPerModule * qrCodeData.ModuleMatrix.Count, darkColorHex, lightColorHex, drawQuietZones, sizingMode);
         }
     }
 }
