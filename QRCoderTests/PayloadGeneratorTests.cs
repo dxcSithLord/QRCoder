@@ -4,7 +4,7 @@ using QRCoder;
 using Shouldly;
 using System.Globalization;
 using System.Threading;
-using QRCoderTests.XUnitExtenstions;
+using QRCoderTests.Helpers.XUnitExtenstions;
 using static QRCoder.PayloadGenerator.BezahlCode;
 using static QRCoder.PayloadGenerator.SwissQrCode.Reference;
 using System.Reflection;
@@ -439,6 +439,58 @@ namespace QRCoderTests
 
         [Fact]
         [Category("PayloadGenerator/Mail")]
+        public void mail_should_build_type_mailto_receiver_only()
+        {
+            var receiver = "john@doe.com";
+            var encoding = PayloadGenerator.Mail.MailEncoding.MAILTO;
+
+            var generator = new PayloadGenerator.Mail(mailReceiver: receiver, encoding: encoding);
+
+            generator.ToString().ShouldBe("mailto:john@doe.com");
+        }
+
+
+        [Fact]
+        [Category("PayloadGenerator/Mail")]
+        public void mail_should_build_type_mailto_subject_only()
+        {
+            var receiver = "john@doe.com";
+            var subject = "A test mail";
+            var encoding = PayloadGenerator.Mail.MailEncoding.MAILTO;
+
+            var generator = new PayloadGenerator.Mail(receiver, subject, encoding: encoding);
+
+            generator.ToString().ShouldBe("mailto:john@doe.com?subject=A%20test%20mail");
+        }
+
+        [Fact]
+        [Category("PayloadGenerator/Mail")]
+        public void mail_should_build_type_mailto_message_only()
+        {
+            var receiver = "john@doe.com";
+            var message = "Just see if it works!";
+            var encoding = PayloadGenerator.Mail.MailEncoding.MAILTO;
+
+            var generator = new PayloadGenerator.Mail(receiver, message: message, encoding: encoding);
+
+            generator.ToString().ShouldBe("mailto:john@doe.com?body=Just%20see%20if%20it%20works%21");
+        }
+
+        [Fact]
+        [Category("PayloadGenerator/Mail")]
+        public void mail_should_build_type_mailto_no_receiver()
+        {
+            var subject = "A test mail";
+            var message = "Just see if it works!";
+            var encoding = PayloadGenerator.Mail.MailEncoding.MAILTO;
+
+            var generator = new PayloadGenerator.Mail(subject: subject, message: message, encoding: encoding);
+
+            generator.ToString().ShouldBe("mailto:?subject=A%20test%20mail&body=Just%20see%20if%20it%20works%21");
+        }
+
+        [Fact]
+        [Category("PayloadGenerator/Mail")]
         public void mail_should_build_type_MATMSG()
         {
             var receiver = "john@doe.com";
@@ -481,7 +533,6 @@ namespace QRCoderTests
             generator.ToString().ShouldBe("MATMSG:TO:john@doe.com;SUB:A test mail;BODY:Just see if \\\\\\:\\;\\, it works!;;");
         }
 
-
         [Fact]
         [Category("PayloadGenerator/Mail")]
         public void mail_should_escape_input_SMTP()
@@ -495,19 +546,6 @@ namespace QRCoderTests
 
             generator.ToString().ShouldBe("SMTP:john@doe.com:A test mail:Just see\\: if it works!");
         }
-
-
-        [Fact]
-        [Category("PayloadGenerator/Mail")]
-        public void mail_should_add_unused_params()
-        {
-            var receiver = "john@doe.com";
-
-            var generator = new PayloadGenerator.Mail(receiver);
-
-            generator.ToString().ShouldBe("mailto:john@doe.com?subject=&body=");
-        }
-
 
         [Fact]
         [Category("PayloadGenerator/SMS")]
@@ -553,13 +591,13 @@ namespace QRCoderTests
 
         [Fact]
         [Category("PayloadGenerator/SMS")]
-        public void sms_should_add_unused_params()
+        public void sms_should_not_add_unused_params()
         {
             var number = "01601234567";
 
             var generator = new PayloadGenerator.SMS(number);
 
-            generator.ToString().ShouldBe("sms:01601234567?body=");
+            generator.ToString().ShouldBe("sms:01601234567");
         }
 
 
@@ -593,13 +631,13 @@ namespace QRCoderTests
 
         [Fact]
         [Category("PayloadGenerator/MMS")]
-        public void mms_should_add_unused_params()
+        public void mms_should_not_add_unused_params()
         {
             var number = "01601234567";
 
             var generator = new PayloadGenerator.MMS(number);
 
-            generator.ToString().ShouldBe("mms:01601234567?body=");
+            generator.ToString().ShouldBe("mms:01601234567");
         }
 
 
@@ -2637,7 +2675,6 @@ namespace QRCoderTests
 
             pg.ToString().ShouldBe("otpauth://hotp/Google:test@google.com?secret=pwq65q55&issuer=Google&counter=500");
         }
-        //TODO: Include more tests for the one time password payload generator
 
 
         [Fact]
@@ -2747,6 +2784,7 @@ namespace QRCoderTests
             var lastname = "Doe";
             var nickname = "Johnny";
             var org = "Johnny's Badass Programming";
+            var orgTitle = "Badass Manager";
             var phone = "+4253212222";
             var mobilePhone = "+421701234567";
             var workPhone = "+4253211337";
@@ -2761,11 +2799,11 @@ namespace QRCoderTests
             var note = "Badass programmer.";
             var outputType = PayloadGenerator.ContactData.ContactOutputType.MeCard;
 
-            var generator = new PayloadGenerator.ContactData(outputType, firstname, lastname, nickname, phone, mobilePhone, workPhone, email, birthday, website, street, houseNumber, city, zipCode, country, note, org: org);
+            var generator = new PayloadGenerator.ContactData(outputType, firstname, lastname, nickname, phone, mobilePhone, workPhone, email, birthday, website, street, houseNumber, city, zipCode, country, note, org: org, orgTitle: orgTitle);
 
             generator
                 .ToString()
-                .ShouldBe("MECARD+\r\nN:Doe, John\r\nORG:Johnny's Badass Programming\r\nTEL:+4253212222\r\nTEL:+421701234567\r\nTEL:+4253211337\r\nEMAIL:me@john.doe\r\nNOTE:Badass programmer.\r\nBDAY:19700201\r\nADR:,,Long street 42,12345,Super-Town,,Starlight Country\r\nURL:http://john.doe\r\nNICKNAME:Johnny");
+                .ShouldBe("MECARD+\r\nN:Doe, John\r\nORG:Johnny's Badass Programming\r\nTITLE:Badass Manager\r\nTEL:+4253212222\r\nTEL:+421701234567\r\nTEL:+4253211337\r\nEMAIL:me@john.doe\r\nNOTE:Badass programmer.\r\nBDAY:19700201\r\nADR:,,Long street 42,12345,Super-Town,,Starlight Country\r\nURL:http://john.doe\r\nNICKNAME:Johnny");
         }
 
         [Fact]
@@ -2776,6 +2814,7 @@ namespace QRCoderTests
             var lastname = "Doe";
             var nickname = "Johnny";
             var org = "Johnny's Badass Programming";
+            var orgTitle = "Badass Manager";
             var phone = "+4253212222";
             var mobilePhone = "+421701234567";
             var workPhone = "+4253211337";
@@ -2790,11 +2829,11 @@ namespace QRCoderTests
             var note = "Badass programmer.";
             var outputType = PayloadGenerator.ContactData.ContactOutputType.MeCard;
 
-            var generator = new PayloadGenerator.ContactData(outputType, firstname, lastname, nickname, phone, mobilePhone, workPhone, email, birthday, website, street, houseNumber, city, zipCode, country, note, addressOrder: PayloadGenerator.ContactData.AddressOrder.Reversed, org: org);
+            var generator = new PayloadGenerator.ContactData(outputType, firstname, lastname, nickname, phone, mobilePhone, workPhone, email, birthday, website, street, houseNumber, city, zipCode, country, note, addressOrder: PayloadGenerator.ContactData.AddressOrder.Reversed, org: org, orgTitle: orgTitle);
 
             generator
                 .ToString()
-                .ShouldBe("MECARD+\r\nN:Doe, John\r\nORG:Johnny's Badass Programming\r\nTEL:+4253212222\r\nTEL:+421701234567\r\nTEL:+4253211337\r\nEMAIL:me@john.doe\r\nNOTE:Badass programmer.\r\nBDAY:19700201\r\nADR:,,42 Long street,Super-Town,,12345,Starlight Country\r\nURL:http://john.doe\r\nNICKNAME:Johnny");
+                .ShouldBe("MECARD+\r\nN:Doe, John\r\nORG:Johnny's Badass Programming\r\nTITLE:Badass Manager\r\nTEL:+4253212222\r\nTEL:+421701234567\r\nTEL:+4253211337\r\nEMAIL:me@john.doe\r\nNOTE:Badass programmer.\r\nBDAY:19700201\r\nADR:,,42 Long street,Super-Town,,12345,Starlight Country\r\nURL:http://john.doe\r\nNICKNAME:Johnny");
         }
 
         [Fact]
@@ -2805,6 +2844,7 @@ namespace QRCoderTests
             var lastname = "Doe";
             var nickname = "Johnny";
             var org = "Johnny's Badass Programming";
+            var orgTitle = "Badass Manager";
             var phone = "+4253212222";
             var mobilePhone = "+421701234567";
             var workPhone = "+4253211337";
@@ -2819,11 +2859,11 @@ namespace QRCoderTests
             var note = "Badass programmer.";
             var outputType = PayloadGenerator.ContactData.ContactOutputType.VCard21;
 
-            var generator = new PayloadGenerator.ContactData(outputType, firstname, lastname, nickname, phone, mobilePhone, workPhone, email, birthday, website, street, houseNumber, city, zipCode, country, note, org: org);
+            var generator = new PayloadGenerator.ContactData(outputType, firstname, lastname, nickname, phone, mobilePhone, workPhone, email, birthday, website, street, houseNumber, city, zipCode, country, note, org: org, orgTitle: orgTitle);
 
             generator
                 .ToString()
-                .ShouldBe("BEGIN:VCARD\r\nVERSION:2.1\r\nN:Doe;John;;;\r\nFN:John Doe\r\nORG:Johnny's Badass Programming\r\nTEL;HOME;VOICE:+4253212222\r\nTEL;HOME;CELL:+421701234567\r\nTEL;WORK;VOICE:+4253211337\r\nADR;HOME;PREF:;;Long street 42;12345;Super-Town;;Starlight Country\r\nBDAY:19700201\r\nURL:http://john.doe\r\nEMAIL:me@john.doe\r\nNOTE:Badass programmer.\r\nEND:VCARD");
+                .ShouldBe("BEGIN:VCARD\r\nVERSION:2.1\r\nN:Doe;John;;;\r\nFN:John Doe\r\nORG:Johnny's Badass Programming\r\nTITLE:Badass Manager\r\nTEL;HOME;VOICE:+4253212222\r\nTEL;HOME;CELL:+421701234567\r\nTEL;WORK;VOICE:+4253211337\r\nADR;HOME;PREF:;;Long street 42;12345;Super-Town;;Starlight Country\r\nBDAY:19700201\r\nURL:http://john.doe\r\nEMAIL:me@john.doe\r\nNOTE:Badass programmer.\r\nEND:VCARD");
         }
 
         [Fact]
@@ -2834,6 +2874,7 @@ namespace QRCoderTests
             var lastname = "Doe";
             var nickname = "Johnny";
             var org = "Johnny's Badass Programming";
+            var orgTitle = "Badass Manager";
             var phone = "+4253212222";
             var mobilePhone = "+421701234567";
             var workPhone = "+4253211337";
@@ -2848,11 +2889,11 @@ namespace QRCoderTests
             var note = "Badass programmer.";
             var outputType = PayloadGenerator.ContactData.ContactOutputType.VCard3;
 
-            var generator = new PayloadGenerator.ContactData(outputType, firstname, lastname, nickname, phone, mobilePhone, workPhone, email, birthday, website, street, houseNumber, city, zipCode, country, note, org: org);
+            var generator = new PayloadGenerator.ContactData(outputType, firstname, lastname, nickname, phone, mobilePhone, workPhone, email, birthday, website, street, houseNumber, city, zipCode, country, note, org: org, orgTitle: orgTitle);
 
             generator
                 .ToString()
-                .ShouldBe("BEGIN:VCARD\r\nVERSION:3.0\r\nN:Doe;John;;;\r\nFN:John Doe\r\nORG:Johnny's Badass Programming\r\nTEL;TYPE=HOME,VOICE:+4253212222\r\nTEL;TYPE=HOME,CELL:+421701234567\r\nTEL;TYPE=WORK,VOICE:+4253211337\r\nADR;TYPE=HOME,PREF:;;Long street 42;12345;Super-Town;;Starlight Country\r\nBDAY:19700201\r\nURL:http://john.doe\r\nEMAIL:me@john.doe\r\nNOTE:Badass programmer.\r\nNICKNAME:Johnny\r\nEND:VCARD");
+                .ShouldBe("BEGIN:VCARD\r\nVERSION:3.0\r\nN:Doe;John;;;\r\nFN:John Doe\r\nORG:Johnny's Badass Programming\r\nTITLE:Badass Manager\r\nTEL;TYPE=HOME,VOICE:+4253212222\r\nTEL;TYPE=HOME,CELL:+421701234567\r\nTEL;TYPE=WORK,VOICE:+4253211337\r\nADR;TYPE=HOME,PREF:;;Long street 42;12345;Super-Town;;Starlight Country\r\nBDAY:19700201\r\nURL:http://john.doe\r\nEMAIL:me@john.doe\r\nNOTE:Badass programmer.\r\nNICKNAME:Johnny\r\nEND:VCARD");
         }
 
         [Fact]
@@ -2863,6 +2904,7 @@ namespace QRCoderTests
             var lastname = "Doe";
             var nickname = "Johnny";
             var org = "Johnny's Badass Programming";
+            var orgTitle = "Badass Manager";
             var phone = "+4253212222";
             var mobilePhone = "+421701234567";
             var workPhone = "+4253211337";
@@ -2877,11 +2919,11 @@ namespace QRCoderTests
             var note = "Badass programmer.";
             var outputType = PayloadGenerator.ContactData.ContactOutputType.VCard4;
 
-            var generator = new PayloadGenerator.ContactData(outputType, firstname, lastname, nickname, phone, mobilePhone, workPhone, email, birthday, website, street, houseNumber, city, zipCode, country, note, org: org);
+            var generator = new PayloadGenerator.ContactData(outputType, firstname, lastname, nickname, phone, mobilePhone, workPhone, email, birthday, website, street, houseNumber, city, zipCode, country, note, org: org, orgTitle: orgTitle);
 
             generator
                 .ToString()
-                .ShouldBe("BEGIN:VCARD\r\nVERSION:4.0\r\nN:Doe;John;;;\r\nFN:John Doe\r\nORG:Johnny's Badass Programming\r\nTEL;TYPE=home,voice;VALUE=uri:tel:+4253212222\r\nTEL;TYPE=home,cell;VALUE=uri:tel:+421701234567\r\nTEL;TYPE=work,voice;VALUE=uri:tel:+4253211337\r\nADR;TYPE=home,pref:;;Long street 42;12345;Super-Town;;Starlight Country\r\nBDAY:19700201\r\nURL:http://john.doe\r\nEMAIL:me@john.doe\r\nNOTE:Badass programmer.\r\nNICKNAME:Johnny\r\nEND:VCARD");
+                .ShouldBe("BEGIN:VCARD\r\nVERSION:4.0\r\nN:Doe;John;;;\r\nFN:John Doe\r\nORG:Johnny's Badass Programming\r\nTITLE:Badass Manager\r\nTEL;TYPE=home,voice;VALUE=uri:tel:+4253212222\r\nTEL;TYPE=home,cell;VALUE=uri:tel:+421701234567\r\nTEL;TYPE=work,voice;VALUE=uri:tel:+4253211337\r\nADR;TYPE=home,pref:;;Long street 42;12345;Super-Town;;Starlight Country\r\nBDAY:19700201\r\nURL:http://john.doe\r\nEMAIL:me@john.doe\r\nNOTE:Badass programmer.\r\nNICKNAME:Johnny\r\nEND:VCARD");
         }
 
         [Fact]
@@ -2892,6 +2934,7 @@ namespace QRCoderTests
             var lastname = "Doe";
             var nickname = "Johnny";
             var org = "Johnny's Badass Programming";
+            var orgTitle = "Badass Manager";
             var phone = "+4253212222";
             var mobilePhone = "+421701234567";
             var workPhone = "+4253211337";
@@ -2906,24 +2949,24 @@ namespace QRCoderTests
             var note = "Badass programmer.";
             var outputType = PayloadGenerator.ContactData.ContactOutputType.VCard4;
 
-            var generator = new PayloadGenerator.ContactData(outputType, firstname, lastname, nickname, phone, mobilePhone, workPhone, email, birthday, website, street, houseNumber, city, zipCode, country, note, addressOrder: PayloadGenerator.ContactData.AddressOrder.Reversed, org: org);
+            var generator = new PayloadGenerator.ContactData(outputType, firstname, lastname, nickname, phone, mobilePhone, workPhone, email, birthday, website, street, houseNumber, city, zipCode, country, note, addressOrder: PayloadGenerator.ContactData.AddressOrder.Reversed, org: org, orgTitle: orgTitle);
 
             generator
                 .ToString()
-                .ShouldBe("BEGIN:VCARD\r\nVERSION:4.0\r\nN:Doe;John;;;\r\nFN:John Doe\r\nORG:Johnny's Badass Programming\r\nTEL;TYPE=home,voice;VALUE=uri:tel:+4253212222\r\nTEL;TYPE=home,cell;VALUE=uri:tel:+421701234567\r\nTEL;TYPE=work,voice;VALUE=uri:tel:+4253211337\r\nADR;TYPE=home,pref:;;42 Long street;Super-Town;;12345;Starlight Country\r\nBDAY:19700201\r\nURL:http://john.doe\r\nEMAIL:me@john.doe\r\nNOTE:Badass programmer.\r\nNICKNAME:Johnny\r\nEND:VCARD");
+                .ShouldBe("BEGIN:VCARD\r\nVERSION:4.0\r\nN:Doe;John;;;\r\nFN:John Doe\r\nORG:Johnny's Badass Programming\r\nTITLE:Badass Manager\r\nTEL;TYPE=home,voice;VALUE=uri:tel:+4253212222\r\nTEL;TYPE=home,cell;VALUE=uri:tel:+421701234567\r\nTEL;TYPE=work,voice;VALUE=uri:tel:+4253211337\r\nADR;TYPE=home,pref:;;42 Long street;Super-Town;;12345;Starlight Country\r\nBDAY:19700201\r\nURL:http://john.doe\r\nEMAIL:me@john.doe\r\nNOTE:Badass programmer.\r\nNICKNAME:Johnny\r\nEND:VCARD");
         }
 
         [Fact]
         [Category("PayloadGenerator/WhatsAppMessage")]
         public void whatsapp_generator_can_generate_payload_simple()
         {
-            var number = "01601234567";
+            var number = "491601234567";
             var msg = "This is a sample message with Umlauts: Ä,ö, ü and ß.";
             var generator = new PayloadGenerator.WhatsAppMessage(number, msg);
 
             generator
                 .ToString()
-                .ShouldBe("whatsapp://send?phone=01601234567&text=This%20is%20a%20sample%20message%20with%20Umlauts%3A%20%C3%84%2C%C3%B6%2C%20%C3%BC%20and%20%C3%9F.");
+                .ShouldBe("https://wa.me/491601234567?text=This%20is%20a%20sample%20message%20with%20Umlauts%3A%20%C3%84%2C%C3%B6%2C%20%C3%BC%20and%20%C3%9F.");
         }
 
         [Fact]
@@ -2935,9 +2978,34 @@ namespace QRCoderTests
 
             generator
                 .ToString()
-                .ShouldBe("whatsapp://send?phone=&text=This%20is%20a%20sample%20message%20with%20Umlauts%3A%20%C3%84%2C%C3%B6%2C%20%C3%BC%20and%20%C3%9F.");
+                .ShouldBe("https://wa.me/?text=This%20is%20a%20sample%20message%20with%20Umlauts%3A%20%C3%84%2C%C3%B6%2C%20%C3%BC%20and%20%C3%9F.");
         }
 
+        [Fact]
+        [Category("PayloadGenerator/WhatsAppMessage")]
+        public void whatsapp_should_cleanup_phonenumber_1()
+        {
+            var number = "+49(160)1234567";
+            var msg = "This is a sample message with Umlauts: Ä,ö, ü and ß.";
+            var generator = new PayloadGenerator.WhatsAppMessage(number, msg);
+
+            generator
+                .ToString()
+                .ShouldBe("https://wa.me/491601234567?text=This%20is%20a%20sample%20message%20with%20Umlauts%3A%20%C3%84%2C%C3%B6%2C%20%C3%BC%20and%20%C3%9F.");
+        }
+
+        [Fact]
+        [Category("PayloadGenerator/WhatsAppMessage")]
+        public void whatsapp_should_cleanup_phonenumber_2()
+        {
+            var number = "0049-160-1234 567";
+            var msg = "This is a sample message with Umlauts: Ä,ö, ü and ß.";
+            var generator = new PayloadGenerator.WhatsAppMessage(number, msg);
+
+            generator
+                .ToString()
+                .ShouldBe("https://wa.me/491601234567?text=This%20is%20a%20sample%20message%20with%20Umlauts%3A%20%C3%84%2C%C3%B6%2C%20%C3%BC%20and%20%C3%9F.");
+        }
 
         [Fact]
         [Category("PayloadGenerator/Monero")]
@@ -2950,7 +3018,6 @@ namespace QRCoderTests
                 .ToString()
                 .ShouldBe("monero://46BeWrHpwXmHDpDEUmZBWZfoQpdc6HaERCNmx1pEYL2rAcuwufPN9rXHHtyUA4QVy66qeFQkn6sfK8aHYjA3jk3o1Bv16em");
         }
-
 
         [Fact]
         [Category("PayloadGenerator/Monero")]
@@ -3023,6 +3090,326 @@ namespace QRCoderTests
             Assert.NotNull(exception);
             Assert.IsType<PayloadGenerator.MoneroTransaction.MoneroTransactionException>(exception);
             exception.Message.ShouldBe("The address is mandatory and has to be set.");
+        }
+
+
+        [Fact]
+        [Category("PayloadGenerator/RussiaPaymentOrder")]
+        public void russiapayment_generator_can_generate_payload_mandatory_fields()
+        {
+            var account = "40702810138250123017";
+            var bic = "044525225";
+            var bankName = "ОАО \"БАНК\"";
+            var name = "ООО «Три кита»";
+            var correspAcc = "30101810965770000413";
+            var generator = new PayloadGenerator.RussiaPaymentOrder(name, account, bankName, bic, correspAcc);
+
+            generator
+                .ToString()
+                .ShouldBe($"ST00012|Name={name}|PersonalAcc={account}|BankName={bankName}|BIC={bic}|CorrespAcc={correspAcc}|");
+        }
+
+        [Fact]
+        [Category("PayloadGenerator/RussiaPaymentOrder")]
+        public void russiapayment_generator_can_generate_payload_encoding_win1251()
+        {
+            var account = "40702810138250123017";
+            var bic = "044525225";
+            var bankName = "ОАО \"БАНК\"";
+            var name = "ООО «Три кита»";
+            var correspAcc = "30101810965770000413";
+            var generator = new PayloadGenerator.RussiaPaymentOrder(name, account, bankName, bic, correspAcc, null, PayloadGenerator.RussiaPaymentOrder.CharacterSets.windows_1251);
+
+            byte[] targetBytes = new byte[] { 83, 84, 48, 48, 48, 49, 49, 124, 78, 97, 109, 101, 61, 206, 206, 206, 32, 171, 210, 240, 232, 32, 234, 232, 242, 224, 187, 124, 80, 101, 114, 115, 111, 110, 97, 108, 65, 99, 99, 61, 52, 48, 55, 48, 50, 56, 49, 48, 49, 51, 56, 50, 53, 48, 49, 50, 51, 48, 49, 55, 124, 66, 97, 110, 107, 78, 97, 109, 101, 61, 206, 192, 206, 32, 34, 193, 192, 205, 202, 34, 124, 66, 73, 67, 61, 48, 52, 52, 53, 50, 53, 50, 50, 53, 124, 67, 111, 114, 114, 101, 115, 112, 65, 99, 99, 61, 51, 48, 49, 48, 49, 56, 49, 48, 57, 54, 53, 55, 55, 48, 48, 48, 48, 52, 49, 51, 124 };
+            var payloadBytes = generator.ToBytes();
+
+            Assert.True(targetBytes.Length == payloadBytes.Length, $"Byte array lengths different. Expected: {targetBytes.Length}, Actual: {payloadBytes.Length}");
+            for (int i = 0; i < targetBytes.Length; i++)
+            {
+                Assert.True(targetBytes[i] == payloadBytes[i],
+                            $"Expected: '{targetBytes[i]}', Actual: '{payloadBytes[i]}' at offset {i}."
+                );
+            }
+        }
+
+        [Fact]
+        [Category("PayloadGenerator/RussiaPaymentOrder")]
+        public void russiapayment_generator_can_generate_payload_encoding_koi8()
+        {
+            var account = "40702810138250123017";
+            var bic = "044525225";
+            var bankName = "ОАО \"БАНК\"";
+            var name = "ООО «Три кита»";
+            var correspAcc = "30101810965770000413";
+            var generator = new PayloadGenerator.RussiaPaymentOrder(name, account, bankName, bic, correspAcc, null, PayloadGenerator.RussiaPaymentOrder.CharacterSets.koi8_r);
+
+            byte[] targetBytes = new byte[] { 83, 84, 48, 48, 48, 49, 51, 124, 78, 97, 109, 101, 61, 239, 239, 239, 32, 60, 244, 210, 201, 32, 203, 201, 212, 193, 62, 124, 80, 101, 114, 115, 111, 110, 97, 108, 65, 99, 99, 61, 52, 48, 55, 48, 50, 56, 49, 48, 49, 51, 56, 50, 53, 48, 49, 50, 51, 48, 49, 55, 124, 66, 97, 110, 107, 78, 97, 109, 101, 61, 239, 225, 239, 32, 34, 226, 225, 238, 235, 34, 124, 66, 73, 67, 61, 48, 52, 52, 53, 50, 53, 50, 50, 53, 124, 67, 111, 114, 114, 101, 115, 112, 65, 99, 99, 61, 51, 48, 49, 48, 49, 56, 49, 48, 57, 54, 53, 55, 55, 48, 48, 48, 48, 52, 49, 51, 124 };
+            var payloadBytes = generator.ToBytes();
+          
+            Assert.True(targetBytes.Length == payloadBytes.Length, $"Byte array lengths different. Expected: {targetBytes.Length}, Actual: {payloadBytes.Length}");            
+            for (int i = 0; i < targetBytes.Length; i++)
+            {
+                Assert.True(targetBytes[i] == payloadBytes[i],
+                            $"Expected: '{targetBytes[i]}', Actual: '{payloadBytes[i]}' at offset {i}."
+                );
+            }          
+        }
+
+        [Fact]
+        [Category("PayloadGenerator/RussiaPaymentOrder")]
+        public void russiapayment_generator_can_generate_payload_custom_separator()
+        {
+            var account = "40702810138250123017";
+            var bic = "044525225";
+            var bankName = "ОАО | \"БАНК\"";
+            var name = "ООО «Три кита»";
+            var correspAcc = "30101810400000000225";
+            var generator = new PayloadGenerator.RussiaPaymentOrder(name, account, bankName, bic, correspAcc);
+
+            generator
+                .ToString()
+                .ShouldBe($"ST00012#Name={name}#PersonalAcc={account}#BankName={bankName}#BIC={bic}#CorrespAcc={correspAcc}#");
+        }
+
+        [Fact]
+        [Category("PayloadGenerator/RussiaPaymentOrder")]
+        public void russiapayment_generator_should_throw_no_separator_exception()
+        {
+            var account = "40702810138250123017";
+            var bic = "044525225";
+            var bankName = "ОАО | \"БАНК\"";
+            var name = "|@;:^_~{}!#$%&()*+,/"; //All chars that could be used as separator
+            var correspAcc = "30101810400000000225";
+            var generator = new PayloadGenerator.RussiaPaymentOrder(name, account, bankName, bic, correspAcc);
+
+            var exception = Record.Exception(() => generator.ToString());
+            Assert.NotNull(exception);
+            Assert.IsType<PayloadGenerator.RussiaPaymentOrder.RussiaPaymentOrderException>(exception);
+            exception.Message.ShouldBe("No valid separator found.");
+        }
+
+        [Fact]
+        [Category("PayloadGenerator/RussiaPaymentOrder")]
+        public void russiapayment_generator_should_throw_data_too_long_exception()
+        {
+            var account = "40702810138250123017";
+            var bic = "044525225";
+            var bankName = "ОАО | \"БАНК\"";
+            var name = "A very very very very very very very very very very very very very very very very very very very very very very very very very very very very very long name";
+            var correspAcc = "30101810400000000225";
+            var optionalFields = new PayloadGenerator.RussiaPaymentOrder.OptionalFields()
+            {
+                FirstName = "Another long long long long long long long long long long long long long long firstname",
+                LastName = "Another long long long long long long long long long long long long long long lastname",
+                Sum = "125000"
+            };
+            var generator = new PayloadGenerator.RussiaPaymentOrder(name, account, bankName, bic, correspAcc, optionalFields);
+
+            var exception = Record.Exception(() => generator.ToString());
+            Assert.NotNull(exception);
+            Assert.IsType<PayloadGenerator.RussiaPaymentOrder.RussiaPaymentOrderException>(exception);
+            exception.Message.ShouldStartWith("Data too long");
+        }
+
+        [Fact]
+        [Category("PayloadGenerator/RussiaPaymentOrder")]
+        public void russiapayment_generator_should_throw_must_not_be_null_exception()
+        {
+            string account = null;
+            var bic = "044525225";
+            var bankName = "ОАО | \"БАНК\"";
+            var name = "|@;:^_~{}!#$%&()*+,/";
+            var correspAcc = "30101810400000000225";
+            
+            var exception = Record.Exception(() => new PayloadGenerator.RussiaPaymentOrder(name, account, bankName, bic, correspAcc));
+            Assert.NotNull(exception);
+            Assert.IsType<PayloadGenerator.RussiaPaymentOrder.RussiaPaymentOrderException>(exception);
+            exception.Message.ShouldBe($"The input for 'PersonalAcc' must not be null.");
+        }
+
+        [Fact]
+        [Category("PayloadGenerator/RussiaPaymentOrder")]
+        public void russiapayment_generator_should_throw_unmatched_pattern_exception()
+        {
+            string account = "40702810138250123017";
+            var bic = "abcd"; //Invalid BIC
+            var bankName = "ОАО | \"БАНК\"";
+            var name = "|@;:^_~{}!#$%&()*+,/";
+            var correspAcc = "30101810400000000225";
+
+            var exception = Record.Exception(() => new PayloadGenerator.RussiaPaymentOrder(name, account, bankName, bic, correspAcc));
+            Assert.NotNull(exception);
+            Assert.IsType<PayloadGenerator.RussiaPaymentOrder.RussiaPaymentOrderException>(exception);
+            exception.Message.ShouldBe("The input for 'BIC' (abcd) doesn't match the pattern ^\\d{9}$");
+        }
+
+        [Fact]
+        [Category("PayloadGenerator/RussiaPaymentOrder")]
+        public void russiapayment_generator_can_generate_payload_some_additional_fields()
+        {
+            var account = "40702810138250123017";
+            var bic = "044525225";
+            var bankName = "=ОАО \"БАНК\"";
+            var name = "ООО «Три кита»";
+            var correspAcc = "30101810400000000225";
+            var optionalFields = new PayloadGenerator.RussiaPaymentOrder.OptionalFields()
+            {
+                FirstName = "Raffael",
+                LastName = "Herrmann",
+                Sum = "125000"
+            };
+
+            var generator = new PayloadGenerator.RussiaPaymentOrder(name, account, bankName, bic, correspAcc, optionalFields);
+
+            generator
+                .ToString()
+                .ShouldBe($"ST00012|Name={name}|PersonalAcc={account}|BankName={bankName}|BIC={bic}|CorrespAcc={correspAcc}|Sum={optionalFields.Sum}|LastName={optionalFields.LastName}|FirstName={optionalFields.FirstName}|");
+        }
+
+        [Fact]
+        [Category("PayloadGenerator/RussiaPaymentOrder")]
+        public void russiapayment_generator_can_generate_payload_all_additional_fields_pt1()
+        {
+            var account = "40702810138250123017";
+            var bic = "044525225";
+            var bankName = "=ОАО \"БАНК\"";
+            var name = "ООО «Три кита»";
+            var correspAcc = "30101810400000000225";
+            var optionalFields = new PayloadGenerator.RussiaPaymentOrder.OptionalFields()
+            {
+                FirstName = "R",
+                MiddleName = "C",
+                LastName = "Hann",
+                Sum = "1250",
+                AddAmount = "10",
+                BirthDate = new DateTime(1990, 1, 1),
+                Category = "1",
+                CBC = "CBC1",
+                ChildFio = "J Doe",
+                ClassNum = "1",
+                Contract = "99",                                
+            };
+
+            var generator = new PayloadGenerator.RussiaPaymentOrder(name, account, bankName, bic, correspAcc, optionalFields);
+
+            generator
+                .ToString()
+                .ShouldBe($"ST00012|Name={name}|PersonalAcc={account}|BankName={bankName}|BIC={bic}|CorrespAcc={correspAcc}|Sum={optionalFields.Sum}|CBC=CBC1|LastName=Hann|FirstName=R|MiddleName=C|Contract=99|ChildFio=J Doe|BirthDate=01.01.1990|Category=1|ClassNum=1|AddAmount=10|");
+        }
+
+        [Fact]
+        [Category("PayloadGenerator/RussiaPaymentOrder")]
+        public void russiapayment_generator_can_generate_payload_all_additional_fields_pt2()
+        {
+            var account = "40702810138250123017";
+            var bic = "044525225";
+            var bankName = "=ОАО \"БАНК\"";
+            var name = "ООО «Три кита»";
+            var correspAcc = "30101810400000000225";
+            var optionalFields = new PayloadGenerator.RussiaPaymentOrder.OptionalFields()
+            {               
+                CounterId = "1234",
+                CounterVal = "9999",
+                DocDate = new DateTime(2021, 11, 8),
+                DocIdx = "A1",
+                DocNo = "11",
+                DrawerStatus = "D1",
+                ExecId = "77",
+                Flat = "5a",
+                InstNum = "987",
+                KPP = "KPP1",
+                OKTMO = "112233"
+            };
+
+            var generator = new PayloadGenerator.RussiaPaymentOrder(name, account, bankName, bic, correspAcc, optionalFields);
+
+            generator
+                .ToString()
+                .ShouldBe($"ST00012|Name={name}|PersonalAcc={account}|BankName={bankName}|BIC={bic}|CorrespAcc={correspAcc}|DrawerStatus=D1|KPP=KPP1|OKTMO=112233|DocNo=11|DocDate=08.11.2021|DocIdx=A1|Flat=5a|CounterId=1234|CounterVal=9999|InstNum=987|ExecId=77|");
+        }
+
+
+        [Fact]
+        [Category("PayloadGenerator/RussiaPaymentOrder")]
+        public void russiapayment_generator_can_generate_payload_all_additional_fields_pt3()
+        {
+            var account = "40702810138250123017";
+            var bic = "044525225";
+            var bankName = "=ОАО \"БАНК\"";
+            var name = "ООО «Три кита»";
+            var correspAcc = "30101810400000000225";
+            var optionalFields = new PayloadGenerator.RussiaPaymentOrder.OptionalFields()
+            {                
+                PayeeINN = "INN1",
+                PayerAddress = "Street 1, 123 City",
+                PayerIdNum = "555",
+                PayerIdType = "X",
+                PayerINN = "INN2",
+                PaymPeriod = "12",
+                PaymTerm = "A",
+                PaytReason = "01",
+                PensAcc = "SNILS_NO"                 
+            };
+
+            var generator = new PayloadGenerator.RussiaPaymentOrder(name, account, bankName, bic, correspAcc, optionalFields);
+
+            generator
+                .ToString()
+                .ShouldBe($"ST00012|Name={name}|PersonalAcc={account}|BankName={bankName}|BIC={bic}|CorrespAcc={correspAcc}|PayeeINN=INN1|PayerINN=INN2|PaytReason=01|PayerAddress=Street 1, 123 City|PensAcc=SNILS_NO|PayerIdType=X|PayerIdNum=555|PaymTerm=A|PaymPeriod=12|");
+        }
+
+        [Fact]
+        [Category("PayloadGenerator/RussiaPaymentOrder")]
+        public void russiapayment_generator_can_generate_payload_all_additional_fields_pt4()
+        {
+            var account = "40702810138250123017";
+            var bic = "044525225";
+            var bankName = "=ОАО \"БАНК\"";
+            var name = "ООО «Три кита»";
+            var correspAcc = "30101810400000000225";
+            var optionalFields = new PayloadGenerator.RussiaPaymentOrder.OptionalFields()
+            {
+                PersAcc = "2222",
+                PersonalAccount = "3333",
+                Phone = "0012345",
+                Purpose = "Test",
+                QuittDate = new DateTime(2021, 2, 1),
+                QuittId = "7",
+                RegType = "y",
+                RuleId = "2",
+                ServiceName = "Bank"
+            };
+
+            var generator = new PayloadGenerator.RussiaPaymentOrder(name, account, bankName, bic, correspAcc, optionalFields);
+
+            generator
+                .ToString()
+                .ShouldBe($"ST00012|Name={name}|PersonalAcc={account}|BankName={bankName}|BIC={bic}|CorrespAcc={correspAcc}|Purpose=Test|PersonalAccount=3333|PersAcc=2222|Phone=0012345|ServiceName=Bank|QuittId=7|QuittDate=01.02.2021|RuleId=2|RegType=y|");
+        }
+
+        [Fact]
+        [Category("PayloadGenerator/RussiaPaymentOrder")]
+        public void russiapayment_generator_can_generate_payload_all_additional_fields_pt5()
+        {
+            var account = "40702810138250123017";
+            var bic = "044525225";
+            var bankName = "=ОАО \"БАНК\"";
+            var name = "ООО «Три кита»";
+            var correspAcc = "30101810400000000225";
+            var optionalFields = new PayloadGenerator.RussiaPaymentOrder.OptionalFields()
+            {
+                SpecFio = "T. Eacher",
+                TaxPaytKind = "99",
+                TaxPeriod = "31",
+                TechCode = PayloadGenerator.RussiaPaymentOrder.TechCode.ГИБДД_налоги_пошлины_бюджетные_платежи,
+                UIN = "1a2b"
+            };
+
+            var generator = new PayloadGenerator.RussiaPaymentOrder(name, account, bankName, bic, correspAcc, optionalFields);
+
+            generator
+                .ToString()
+                .ShouldBe($"ST00012|Name={name}|PersonalAcc={account}|BankName={bankName}|BIC={bic}|CorrespAcc={correspAcc}|TaxPeriod=31|TaxPaytKind=99|SpecFio=T. Eacher|UIN=1a2b|TechCode=ГИБДД_налоги_пошлины_бюджетные_платежи|");
         }
     }
 }
